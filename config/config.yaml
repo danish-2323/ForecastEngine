@@ -1,0 +1,382 @@
+# ForecastEngine Configuration
+# Enterprise-grade settings for production deployment
+
+# Data Sources Configuration
+data_sources:
+  # Primary database connection
+  primary_db:
+    type: "postgresql"
+    host: "${DB_HOST:localhost}"
+    port: "${DB_PORT:5432}"
+    database: "${DB_NAME:forecastdb}"
+    username: "${DB_USER:forecast_user}"
+    password: "${DB_PASSWORD:forecast_pass}"
+    
+  # Time-series database
+  timeseries_db:
+    type: "timescaledb"
+    host: "${TIMESCALE_HOST:localhost}"
+    port: "${TIMESCALE_PORT:5433}"
+    database: "${TIMESCALE_DB:timeseriesdb}"
+    username: "${TIMESCALE_USER:timeseries_user}"
+    password: "${TIMESCALE_PASSWORD:timeseries_pass}"
+    
+  # External data sources
+  external_apis:
+    economic_data:
+      url: "https://api.economicdata.com/v1"
+      api_key: "${ECONOMIC_API_KEY}"
+      rate_limit: 1000  # requests per hour
+    weather_data:
+      url: "https://api.weather.com/v1"
+      api_key: "${WEATHER_API_KEY}"
+      rate_limit: 5000
+
+# Feature Engineering Configuration
+features:
+  # Lag features
+  lags:
+    enabled: true
+    periods: [1, 2, 3, 7, 14, 30, 90, 365]
+    
+  # Rolling window features
+  rolling_windows:
+    enabled: true
+    windows: [7, 14, 30, 90]
+    functions: ["mean", "std", "min", "max", "median"]
+    
+  # Seasonality features
+  seasonality:
+    enabled: true
+    periods: ["daily", "weekly", "monthly", "quarterly", "yearly"]
+    fourier_terms: 10
+    
+  # External features
+  external:
+    enabled: true
+    economic_indicators: ["gdp", "inflation", "unemployment"]
+    weather_features: ["temperature", "precipitation", "humidity"]
+    calendar_features: ["holidays", "weekends", "month_end"]
+
+# Model Configuration
+models:
+  # Statistical models
+  statistical:
+    arima:
+      enabled: true
+      auto_arima: true
+      seasonal: true
+      max_p: 5
+      max_q: 5
+      max_d: 2
+      
+    prophet:
+      enabled: true
+      seasonality_mode: "multiplicative"
+      changepoint_prior_scale: 0.05
+      seasonality_prior_scale: 10
+      
+    exponential_smoothing:
+      enabled: true
+      trend: "add"
+      seasonal: "add"
+      seasonal_periods: 12
+      
+  # Machine learning models
+  machine_learning:
+    xgboost:
+      enabled: true
+      n_estimators: 1000
+      max_depth: 6
+      learning_rate: 0.1
+      subsample: 0.8
+      colsample_bytree: 0.8
+      
+    lightgbm:
+      enabled: true
+      n_estimators: 1000
+      max_depth: 6
+      learning_rate: 0.1
+      num_leaves: 31
+      
+    random_forest:
+      enabled: true
+      n_estimators: 500
+      max_depth: 10
+      min_samples_split: 5
+      min_samples_leaf: 2
+      
+  # Deep learning models
+  deep_learning:
+    lstm:
+      enabled: true
+      hidden_size: 128
+      num_layers: 2
+      dropout: 0.2
+      sequence_length: 30
+      
+    transformer:
+      enabled: true
+      d_model: 128
+      nhead: 8
+      num_layers: 6
+      dropout: 0.1
+      
+    neural_prophet:
+      enabled: true
+      n_forecasts: 1
+      n_lags: 30
+      yearly_seasonality: true
+      weekly_seasonality: true
+
+# Ensemble Configuration
+ensemble:
+  method: "weighted_average"  # weighted_average, stacking, dynamic
+  validation_split: 0.2
+  cross_validation_folds: 5
+  
+  # Dynamic weighting parameters
+  dynamic_window: 50
+  performance_decay: 0.95
+  min_weight: 0.05
+  
+  # Stacking parameters
+  meta_model: "linear_regression"
+  meta_model_cv: 5
+
+# Uncertainty Quantification
+uncertainty:
+  method: "quantile_regression"  # quantile_regression, conformal_prediction, bootstrap
+  confidence_levels: [0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95]
+  
+  # Bootstrap parameters
+  bootstrap_samples: 1000
+  bootstrap_block_size: 10
+  
+  # Conformal prediction parameters
+  conformal_alpha: 0.1
+  conformal_method: "split"
+
+# Explainability Configuration
+explainability:
+  method: "shap"  # shap, permutation, lime
+  
+  # Feature descriptions for business users
+  feature_descriptions:
+    "lag_1": "Previous period value"
+    "lag_7": "Same day last week"
+    "lag_30": "Same day last month"
+    "rolling_mean_7": "7-day average"
+    "rolling_mean_30": "30-day average"
+    "seasonality_weekly": "Weekly seasonal pattern"
+    "seasonality_monthly": "Monthly seasonal pattern"
+    "trend": "Long-term trend"
+    "gdp": "Economic growth indicator"
+    "temperature": "Weather temperature"
+    "holidays": "Holiday effects"
+    
+  # Business context
+  business_context:
+    industry: "retail"
+    metric_type: "demand"
+    currency: "USD"
+    units: "units"
+
+# Scenario Planning
+scenarios:
+  # Predefined scenarios
+  templates:
+    economic_downturn:
+      gdp_change: -0.05
+      unemployment_change: 0.02
+      consumer_confidence_change: -0.15
+      
+    holiday_season:
+      seasonality_boost: 1.3
+      marketing_spend_increase: 0.25
+      
+    supply_disruption:
+      availability_factor: 0.8
+      price_increase: 0.15
+      
+    new_product_launch:
+      cannibalization_rate: 0.1
+      market_expansion: 0.05
+      
+  # Optimization settings
+  optimization:
+    enabled: true
+    objective: "profit_maximization"  # profit_maximization, cost_minimization, service_level
+    constraints:
+      max_inventory_investment: 1000000
+      min_service_level: 0.95
+      max_stockout_rate: 0.05
+
+# Evaluation Configuration
+evaluation:
+  metrics: ["mae", "mape", "rmse", "mase", "smape"]
+  
+  # Backtesting settings
+  backtesting:
+    enabled: true
+    test_size: 0.2
+    time_series_split: true
+    n_splits: 5
+    
+  # Performance monitoring
+  monitoring:
+    drift_detection: true
+    performance_threshold: 0.1
+    alert_threshold: 0.15
+    
+  # Model comparison
+  comparison:
+    baseline_models: ["naive", "seasonal_naive", "linear_trend"]
+    statistical_tests: ["dm_test", "wilcoxon"]
+
+# MLOps Configuration
+mlops:
+  # Model versioning
+  versioning:
+    enabled: true
+    backend: "mlflow"
+    tracking_uri: "${MLFLOW_TRACKING_URI:http://localhost:5000}"
+    
+  # Automated retraining
+  retraining:
+    enabled: true
+    schedule: "0 2 * * 0"  # Weekly on Sunday at 2 AM
+    triggers:
+      performance_drift: 0.1
+      data_drift: 0.05
+      time_based: "7d"
+      
+  # Model deployment
+  deployment:
+    strategy: "blue_green"  # blue_green, canary, rolling
+    health_check_endpoint: "/health"
+    rollback_threshold: 0.2
+    
+  # Monitoring
+  monitoring:
+    metrics_collection: true
+    logging_level: "INFO"
+    alert_channels: ["email", "slack"]
+
+# API Configuration
+api:
+  host: "0.0.0.0"
+  port: 8000
+  workers: 4
+  
+  # Security
+  authentication:
+    enabled: true
+    method: "jwt"  # jwt, api_key, oauth2
+    secret_key: "${JWT_SECRET_KEY}"
+    token_expiry: 3600
+    
+  # Rate limiting
+  rate_limiting:
+    enabled: true
+    requests_per_minute: 100
+    burst_size: 20
+    
+  # CORS
+  cors:
+    enabled: true
+    allowed_origins: ["*"]
+    allowed_methods: ["GET", "POST", "PUT", "DELETE"]
+
+# Dashboard Configuration
+dashboard:
+  title: "ForecastEngine Dashboard"
+  theme: "light"  # light, dark
+  
+  # Default views
+  default_views:
+    - "forecast_overview"
+    - "model_performance"
+    - "data_quality"
+    - "scenario_analysis"
+    
+  # Refresh intervals (seconds)
+  refresh_intervals:
+    real_time: 30
+    standard: 300
+    slow: 1800
+    
+  # Export options
+  export:
+    formats: ["pdf", "excel", "csv", "png"]
+    enabled: true
+
+# Logging Configuration
+logging:
+  level: "${LOG_LEVEL:INFO}"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  
+  # File logging
+  file:
+    enabled: true
+    path: "/app/logs"
+    max_size: "100MB"
+    backup_count: 5
+    
+  # Structured logging
+  structured:
+    enabled: true
+    format: "json"
+    
+  # External logging
+  external:
+    enabled: false
+    service: "elasticsearch"  # elasticsearch, splunk, datadog
+    endpoint: "${LOG_ENDPOINT}"
+
+# Security Configuration
+security:
+  # Data encryption
+  encryption:
+    at_rest: true
+    in_transit: true
+    key_rotation: true
+    
+  # Access control
+  access_control:
+    rbac_enabled: true
+    roles:
+      admin: ["read", "write", "delete", "manage"]
+      analyst: ["read", "write"]
+      viewer: ["read"]
+      
+  # Audit logging
+  audit:
+    enabled: true
+    events: ["login", "forecast_generation", "model_training", "data_access"]
+    retention_days: 365
+
+# Performance Configuration
+performance:
+  # Caching
+  caching:
+    enabled: true
+    backend: "redis"
+    ttl: 3600
+    
+  # Parallel processing
+  parallel:
+    enabled: true
+    max_workers: 8
+    chunk_size: 1000
+    
+  # Memory management
+  memory:
+    max_memory_usage: "8GB"
+    garbage_collection: true
+    
+  # Database optimization
+  database:
+    connection_pool_size: 20
+    query_timeout: 30
+    batch_size: 10000

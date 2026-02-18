@@ -1,0 +1,103 @@
+# config/enriched_config.yaml
+
+# Target configuration
+target_column: 'value'
+date_column: 'date'
+data_path: 'data/sample_data.csv'
+
+# External API Configuration
+external_apis:
+  enabled: true  # Set to false to disable all external enrichment
+  
+  sources:
+    # Weather API Configuration
+    weather:
+      enabled: true
+      api_key: 'YOUR_API_KEY'  # Replace with real API key or leave for mock data
+      location: 'New York'
+      provider: 'openweathermap'  # or 'weatherapi'
+      
+    # News API Configuration
+    news:
+      enabled: true
+      api_key: 'YOUR_API_KEY'  # Replace with real NewsAPI key or leave for mock data
+      keywords: ['business', 'economy', 'market']
+      language: 'en'
+      
+    # Google Analytics Configuration
+    analytics:
+      enabled: true
+      # Real GA4 requires OAuth credentials - using mock data by default
+      property_id: 'YOUR_PROPERTY_ID'
+      
+    # E-commerce API Configuration (Shopify, etc.)
+    ecommerce:
+      enabled: true
+      # Real Shopify requires store credentials - using mock data by default
+      store_url: 'YOUR_STORE_URL'
+      api_key: 'YOUR_API_KEY'
+
+# Feature Engineering Configuration
+features:
+  lags:
+    periods: [1, 2, 3, 7, 14, 30]
+    
+  rolling_windows:
+    windows: [7, 14, 30]
+    
+  seasonality:
+    enabled: true
+    
+  external_lags:
+    enabled: true  # Generate lags for external features
+    periods: [1, 3, 7]
+
+# Model Configuration
+models:
+  enabled_models:
+    - 'arima'
+    - 'random_forest'
+    - 'linear'
+    
+  arima:
+    order: [1, 1, 1]
+    seasonal_order: [1, 1, 1, 7]
+    
+  random_forest:
+    n_estimators: 100
+    max_depth: 10
+    
+  linear:
+    fit_intercept: true
+
+# Ensemble Configuration
+ensemble:
+  method: 'weighted_average'
+  weights: 'auto'  # or specify manual weights
+
+# Uncertainty Configuration
+uncertainty:
+  confidence_levels: [0.1, 0.5, 0.9]
+  method: 'residual_based'
+
+# Explainability Configuration
+explainability:
+  enabled: true
+  include_external_signals: true  # Highlight external feature impacts
+  top_features: 10
+
+# Scenario Configuration
+scenarios:
+  enabled: true
+  
+# Evaluation Configuration
+evaluation:
+  metrics: ['mae', 'mape', 'rmse', 'mase']
+  cross_validation_splits: 3
+
+# MLOps Configuration
+mlops:
+  model_versioning: true
+  drift_detection: true
+  auto_retrain: true
+  retrain_threshold: 0.1

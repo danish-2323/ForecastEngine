@@ -1,0 +1,47 @@
+# Simple ForecastEngine Configuration
+
+# Target and date columns
+target_column: "value"
+date_column: "date"
+
+# Data paths
+data_path: "data/sample_data.csv"
+model_registry_path: "models"
+
+# Feature engineering
+lags:
+  periods: [1, 2, 3, 7, 14, 30]
+
+rolling_windows:
+  windows: [7, 14, 30]
+  functions: ["mean", "std"]
+
+seasonality:
+  enabled: true
+
+# Models
+statistical:
+  arima:
+    enabled: true
+
+machine_learning:
+  random_forest:
+    enabled: true
+    n_estimators: 100
+    max_depth: 10
+    min_samples_split: 5
+  
+  linear:
+    enabled: true
+
+# Ensemble
+ensemble:
+  method: "weighted_average"
+
+# Uncertainty
+uncertainty:
+  method: "residual_based"
+
+# MLOps
+retrain_days: 7
+retrain_threshold: 0.1
